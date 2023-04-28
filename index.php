@@ -1,4 +1,5 @@
 <?php
+$action = $_GET['action'] ?? null;
 // Define as configurações do banco de dados
 $host = '127.0.0.1';
 $database = 'arduino';
@@ -8,7 +9,13 @@ $password = '';
 // Cria a conexão com o banco de dados usando PDO
 $connection = new PDO("mysql:host=$host;dbname=$database", $username, $password);
 
+if($action == 'excluir'){
+  $id = $_GET['id'];
+  $SQL = "DELETE FROM dados WHERE id = $id";
+  $result = $connection->query($SQL);
 
+  echo"<script language='javascript' type='text/javascript'>alert('Registro excluído com sucesso!');window.location.href='index.php';</script>";
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -34,7 +41,9 @@ $connection = new PDO("mysql:host=$host;dbname=$database", $username, $password)
   <div class="container">
     <h1>
       <center>Dados do Arduino</center>
-    </h1>
+    </h1>s
+    <hr>
+    <center><button type="submit" style="margin-bottom: 1rem;" class="btn btn-primary" onclick="window.location.href='index.php'">Atualizar</button></center>
     <div class="card">
       <div class="card-body">
         <table id="tabela" class="table table-striped table-bordered">
@@ -43,6 +52,7 @@ $connection = new PDO("mysql:host=$host;dbname=$database", $username, $password)
               <th>Temperatura</th>
               <th>Umidade</th>
               <th>Data e Hora</th>
+              <th> Ações </th>
             </tr>
           </thead>
           <tbody id="dados">
@@ -52,11 +62,12 @@ $connection = new PDO("mysql:host=$host;dbname=$database", $username, $password)
               $result = $connection->query($SQL);
               $result->setFetchMode(PDO::FETCH_ASSOC);
               $dados = $result->fetchAll();
-              foreach ($dados as $row) {
+              foreach ($dados as $row) {  
                 echo "<tr>";
                 echo "<td>" . $row['temperatura'] . 'C°' . "</td>";
                 echo "<td>" . $row['umidade'] . ' (g/m³)' . "</td>";
                 echo "<td>" . date('d/m/Y H:i:s', strtotime($row['tms_cadastro'])) . "</td>";
+                echo "<td><a href='index.php?action=excluir&id=" . $row['id'] . "' class='btn btn-danger'>Excluir</a></td>";
 
                 echo "</tr>";
               }
@@ -80,6 +91,7 @@ $connection = new PDO("mysql:host=$host;dbname=$database", $username, $password)
   <script>
     $(document).ready(function () {
       $('#tabela').DataTable({
+        
 
       });
 
